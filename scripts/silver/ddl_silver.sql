@@ -136,9 +136,9 @@ CREATE TABLE silver.medications(
 IF OBJECT_ID('silver.observations','U') IS NOT NULL
 	DROP TABLE silver.observations;
 CREATE TABLE silver.observations(
-	date NVARCHAR(50),
-	patient NVARCHAR(255),
-	encounter NVARCHAR(255),
+	[date] DATETIME,
+	patient_id NVARCHAR(255),
+	encounter_id NVARCHAR(255),
 	code NVARCHAR(50),
 	description NVARCHAR(500),
 	value NVARCHAR(50),

@@ -311,3 +311,75 @@ SELECT
     revenue,
     utilization
 FROM bronze.organizations;
+
+GO
+
+TRUNCATE TABLE silver.patients;
+
+INSERT INTO silver.patients (
+    id,
+    birthdate,
+    deathdate,
+    ssn,
+    drivers,
+    passport,
+    prefix,
+    first,
+    last,
+    suffix,
+    maiden,
+    marital,
+    race,
+    ethnicity,
+    gender,
+    birthplace,
+    address,
+    city,
+    state,
+    county,
+    zip,
+    lat,
+    lon,
+    healthcare_expenses,
+    healthcare_coverage
+)
+SELECT
+    TRIM(id) AS id,
+    TRY_CAST(birthdate AS DATETIME) AS birthdate,
+    TRY_CAST(deathdate AS DATETIME) AS deathdate,
+    TRIM(ssn) AS ssn,
+    TRIM(drivers) AS drivers,
+    TRIM(passport) AS passport,
+    TRIM(prefix) AS prefix,
+    -- Remove trailing numbers from first, last  and maiden name
+    CASE 
+        WHEN PATINDEX('%[0-9]%', first) > 0 
+        THEN LEFT(TRIM(first), PATINDEX('%[0-9]%', TRIM(first)) - 1)
+        ELSE TRIM(first)
+    END AS first,
+    CASE 
+        WHEN PATINDEX('%[0-9]%', last) > 0 
+        THEN LEFT(TRIM(last), PATINDEX('%[0-9]%', TRIM(last)) - 1)
+        ELSE TRIM(last)
+    END AS last,
+    TRIM(suffix) AS suffix,
+    CASE 
+        WHEN PATINDEX('%[0-9]%', maiden) > 0 
+        THEN LEFT(TRIM(maiden), PATINDEX('%[0-9]%', TRIM(maiden)) - 1)
+        ELSE TRIM(maiden)
+    END AS maiden,
+    TRIM(marital) AS marital,
+    TRIM(race) AS race,
+    TRIM(ethnicity),
+    TRIM(gender) AS gender,
+    birthplace,
+    address,
+    city,
+    state,
+    county,
+    TRIM(zip) AS zip,
+    lat,
+    lon,
+    healthcare_expenses,
+    healthcare_coverage
+FROM bronze.patients;

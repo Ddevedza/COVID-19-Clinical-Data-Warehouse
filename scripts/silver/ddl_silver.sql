@@ -168,8 +168,8 @@ IF OBJECT_ID('silver.patients','U') IS NOT NULL
 	DROP TABLE silver.patients;
 CREATE TABLE silver.patients(
 	id NVARCHAR(255),
-	birthdate NVARCHAR(50),
-	deathdate NVARCHAR(50),
+	birthdate DATETIME,
+	deathdate DATETIME,
 	ssn NVARCHAR(50),
 	drivers NVARCHAR(50),
 	passport NVARCHAR(50),

@@ -383,3 +383,22 @@ SELECT
     healthcare_expenses,
     healthcare_coverage
 FROM bronze.patients;
+
+GO
+
+TRUNCATE TABLE silver.payer_transitions;
+
+INSERT INTO silver.payer_transitions (
+    patient_id,
+    start_year,
+    end_year,
+    payer_id,
+    ownership
+)
+SELECT
+    TRIM(patient) AS patient_id,
+    start_year,
+    end_year,
+    TRIM(payer) AS payer_id,
+    TRIM(ownership) AS ownership
+FROM bronze.payer_transitions;

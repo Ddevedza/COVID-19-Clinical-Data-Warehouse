@@ -198,10 +198,10 @@ CREATE TABLE silver.patients(
 IF OBJECT_ID('silver.payer_transitions','U') IS NOT NULL
 	DROP TABLE silver.payer_transitions;
 CREATE TABLE silver.payer_transitions(
-	patient NVARCHAR(255),
+	patient_id NVARCHAR(255),
 	start_year INT,
 	end_year INT,
-	payer NVARCHAR(255),
+	payer_id NVARCHAR(255),
 	ownership NVARCHAR(50),
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );

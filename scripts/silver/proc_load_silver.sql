@@ -280,3 +280,34 @@ SELECT
         FROM bronze.observations)t
     WHERE rn<2 -- duplicated values are removed, as they are complete duplicates(achieved on the same date)
     -- they were completely removed
+
+GO
+
+TRUNCATE TABLE silver.organizations;
+
+INSERT INTO silver.organizations (
+    id,
+    name,
+    address,
+    city,
+    state,
+    zip,
+    lat,
+    lon,
+    phone,
+    revenue,
+    utilization
+)
+SELECT
+    TRIM(id) AS id,
+    name,
+    address,
+    city,
+    TRIM(state),
+    TRIM(zip) AS zip,
+    lat,
+    lon,
+    TRIM(phone) AS phone,
+    revenue,
+    utilization
+FROM bronze.organizations;

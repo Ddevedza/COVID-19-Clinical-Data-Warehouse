@@ -242,3 +242,41 @@ FROM(
     FROM bronze.medications
 ) t
 WHERE rn = 1
+
+GO
+
+TRUNCATE TABLE silver.observations;
+
+-- Note: ~30k observations have NULL encounter_id
+-- In Synthea these represent derived patient-level metrics,
+-- administrative recordings, or generation artifacts
+-- NULL encounter_id is preserved intentionally
+INSERT INTO silver.observations (
+    [date],
+    patient_id,
+    encounter_id,
+    code,
+    description,
+    value,
+    units,
+    type
+)
+SELECT
+    TRY_CAST([date] AS DATETIME) AS [date],
+    TRIM(patient) AS patient_id,
+    TRIM(encounter) AS encounter_id,
+    TRIM(code) AS code,
+    description,
+    TRIM([value]) AS value,
+    TRIM(units) AS units,
+    TRIM([type]) AS type
+    FROM (
+        SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY date, patient, encounter, code, value, units, type
+            ORDER BY (SELECT NULL)
+        ) AS rn
+        FROM bronze.observations)t
+    WHERE rn<2 -- duplicated values are removed, as they are complete duplicates(achieved on the same date)
+    -- they were completely removed

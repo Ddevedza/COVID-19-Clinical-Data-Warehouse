@@ -233,6 +233,7 @@ CREATE TABLE silver.payers (
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
+
 IF OBJECT_ID('silver.procedures','U') IS NOT NULL
 	DROP TABLE silver.procedures;
 CREATE TABLE silver.procedures(

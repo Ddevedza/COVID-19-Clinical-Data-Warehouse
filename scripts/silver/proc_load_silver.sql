@@ -459,3 +459,26 @@ SELECT
 END AS qols_avg,
     member_months
 FROM bronze.payers;
+
+TRUNCATE TABLE silver.procedures;
+
+INSERT INTO silver.procedures (
+    date,
+    patient,
+    encounter,
+    code,
+    description,
+    base_cost,
+    reasoncode,
+    reasondescription
+)
+SELECT
+    TRY_CAST(date AS DATETIME),
+    TRIM(patient) AS patient,
+    TRIM(encounter) AS encounter,
+    TRIM(code) AS code,
+    description,
+    base_cost,
+    TRIM(reasoncode) AS reasoncode,
+    reasondescription
+FROM bronze.procedures;

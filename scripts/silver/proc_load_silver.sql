@@ -402,3 +402,60 @@ SELECT
     TRIM(payer) AS payer_id,
     TRIM(ownership) AS ownership
 FROM bronze.payer_transitions;
+
+GO
+
+TRUNCATE TABLE silver.payers;
+
+INSERT INTO silver.payers (
+    id,
+    name,
+    address,
+    city,
+    state_headquartered,
+    zip,
+    phone,
+    amount_covered,
+    amount_uncovered,
+    revenue,
+    covered_encounters,
+    uncovered_encounters,
+    covered_medications,
+    uncovered_medications,
+    covered_procedures,
+    uncovered_procedures,
+    covered_immunizations,
+    uncovered_immunizations,
+    unique_customers,
+    qols_avg,
+    member_months
+)
+SELECT
+    TRIM(id) AS id,
+    name,
+    address,
+    city,
+    TRIM(state_headquartered) AS state_headquartered,
+    TRIM(zip) AS zip,
+    TRIM(phone) AS phone,
+    amount_covered,
+    amount_uncovered,
+    revenue,
+    covered_encounters,
+    uncovered_encounters,
+    covered_medications,
+    uncovered_medications,
+    covered_procedures,
+    uncovered_procedures,
+    covered_immunizations,
+    uncovered_immunizations,
+    unique_customers,
+    -- Capping qols_avg to valid range [0,1]
+    -- NO_INSURANCE payer can produce values slightly above 1 in Synthea
+    CASE 
+        WHEN qols_avg > 1 THEN 1
+        WHEN qols_avg < 0 THEN 0
+    ELSE qols_avg
+END AS qols_avg,
+    member_months
+FROM bronze.payers;

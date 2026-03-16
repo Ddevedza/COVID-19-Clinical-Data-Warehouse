@@ -1,5 +1,4 @@
 /*
-
 DDL Script : Create silver Tables
 
 -------------------------------------------------------------------
@@ -237,7 +236,7 @@ CREATE TABLE silver.payers (
 IF OBJECT_ID('silver.procedures','U') IS NOT NULL
 	DROP TABLE silver.procedures;
 CREATE TABLE silver.procedures(
-	date NVARCHAR(50),
+	date DATETIME,
 	patient NVARCHAR(255),
 	encounter NVARCHAR(255),
 	code NVARCHAR(50),

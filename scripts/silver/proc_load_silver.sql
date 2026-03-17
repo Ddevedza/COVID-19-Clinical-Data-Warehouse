@@ -521,3 +521,24 @@ SELECT
     lon,
     utilization
 FROM bronze.providers;
+
+GO
+
+TRUNCATE TABLE silver.supplies
+
+INSERT INTO silver.supplies (
+    date, 
+	patient_id, 
+	encounter_id, 
+	code, 
+	description, 
+	quantity
+)
+SELECT
+    TRY_CAST([date] AS DATE),
+    TRIM(patient) AS patient_id,
+    TRIM(encounter) AS encounter_id,
+    TRIM(code) AS code,
+    TRIM(description) AS description,
+    quantity
+FROM bronze.supplies;

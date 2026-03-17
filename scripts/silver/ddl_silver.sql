@@ -237,8 +237,8 @@ IF OBJECT_ID('silver.procedures','U') IS NOT NULL
 	DROP TABLE silver.procedures;
 CREATE TABLE silver.procedures(
 	date DATETIME,
-	patient NVARCHAR(255),
-	encounter NVARCHAR(255),
+	patient_id NVARCHAR(255),
+	encounter_id NVARCHAR(255),
 	code NVARCHAR(50),
 	description NVARCHAR(500),
 	base_cost DECIMAL(18,2),
@@ -251,7 +251,7 @@ IF OBJECT_ID('silver.providers','U') IS NOT NULL
 	DROP TABLE silver.providers;
 CREATE TABLE silver.providers(
 	id NVARCHAR(255),
-	organization NVARCHAR(255),
+	organization_id NVARCHAR(255),
 	name NVARCHAR(255),
 	gender NVARCHAR(50),
 	speciality NVARCHAR(50),
@@ -276,3 +276,5 @@ CREATE TABLE silver.supplies(
 	quantity INT,
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
+
+

@@ -277,3 +277,4 @@ CREATE TABLE silver.supplies(
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
+

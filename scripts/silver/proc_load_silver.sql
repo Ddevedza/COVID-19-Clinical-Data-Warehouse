@@ -464,8 +464,8 @@ TRUNCATE TABLE silver.procedures;
 
 INSERT INTO silver.procedures (
     date,
-    patient,
-    encounter,
+    patient_id,
+    encounter_id,
     code,
     description,
     base_cost,
@@ -474,8 +474,8 @@ INSERT INTO silver.procedures (
 )
 SELECT
     TRY_CAST(date AS DATETIME),
-    TRIM(patient) AS patient,
-    TRIM(encounter) AS encounter,
+    TRIM(patient) AS patient_id,
+    TRIM(encounter) AS encounter_id,
     TRIM(code) AS code,
     description,
     base_cost,

@@ -5,7 +5,7 @@ DDL Script : Create silver Tables
 
 Creating tables with existing table based data
 
-As it is a silver layer, all data is not transformed - it is in its original/unaltered state
+Silver layer: cleaned, standardized, validated and integrated clinical data
 */
 
 --if it already exists
@@ -254,7 +254,7 @@ CREATE TABLE silver.providers(
 	organization_id NVARCHAR(255),
 	name NVARCHAR(255),
 	gender NVARCHAR(50),
-	speciality NVARCHAR(50),
+	specialty NVARCHAR(50),
 	address NVARCHAR(255),
 	city NVARCHAR(255),
 	state NVARCHAR(50),
@@ -266,15 +266,14 @@ CREATE TABLE silver.providers(
 );
 
 IF OBJECT_ID('silver.supplies','U') IS NOT NULL
-	DROP TABLE silver.supplies;
+    DROP TABLE silver.supplies;
 CREATE TABLE silver.supplies(
-	date NVARCHAR(50),
-	patient NVARCHAR(255),
-	encounter NVARCHAR(255),
-	code NVARCHAR(50),
-	description NVARCHAR(500),
-	quantity INT,
-	dwh_create_date DATETIME2 DEFAULT GETDATE()
+    date DATE,
+    patient_id NVARCHAR(255),
+    encounter_id NVARCHAR(255),
+    code NVARCHAR(50),
+    description NVARCHAR(500),
+    quantity INT,
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
-
 

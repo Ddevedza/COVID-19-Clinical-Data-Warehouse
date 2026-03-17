@@ -150,7 +150,7 @@ SELECT
     TRIM(patient) AS patient_id,
     TRIM(encounter) AS encounter_id,
     TRIM(bodysite_code) AS bodysite_code,
-    TRIM(bodysite_description),
+    bodysite_description,
     TRIM(modality_code) AS modality_code,
     modality_description,
     TRIM(sop_code) AS sop_code,
@@ -524,7 +524,7 @@ FROM bronze.providers;
 
 GO
 
-TRUNCATE TABLE silver.supplies
+TRUNCATE TABLE silver.supplies;
 
 INSERT INTO silver.supplies (
     date, 

@@ -460,6 +460,8 @@ END AS qols_avg,
     member_months
 FROM bronze.payers;
 
+GO
+
 TRUNCATE TABLE silver.procedures;
 
 INSERT INTO silver.procedures (
@@ -482,3 +484,40 @@ SELECT
     TRIM(reasoncode) AS reasoncode,
     reasondescription
 FROM bronze.procedures;
+
+GO
+
+TRUNCATE TABLE silver.providers;
+
+INSERT INTO silver.providers (
+    id,
+    organization_id,
+    name,
+    gender,
+    speciality,
+    address,
+    city,
+    state,
+    zip,
+    lat,
+    lon,
+    utilization
+)
+SELECT
+    TRIM(id) AS id,
+    TRIM(organization) AS organization_id,
+    REPLACE(
+        TRANSLATE(name, '0123456789', '##########'),
+        '#',
+        ''
+    ) AS name,
+    TRIM(gender) AS gender,
+    TRIM(specialty) AS speciality,
+    address,
+    city,
+    state,
+    TRIM(zip) AS zip,
+    lat,
+    lon,
+    utilization
+FROM bronze.providers;

@@ -274,3 +274,21 @@ CREATE TABLE silver.supplies(
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
+IF OBJECT_ID('gold.dim_date', 'U') IS NOT NULL
+    DROP TABLE gold.dim_date;
+CREATE TABLE gold.dim_date (
+    date_key        INT,           -- e.g. 20100101 - used as FK in fact tables
+    full_date       DATE,          -- actual date value
+    year            INT,           -- 2010
+    month           INT,           -- 1
+    month_name      NVARCHAR(20),  -- January
+    quarter         INT,           -- 1
+    quarter_name    NVARCHAR(10),  -- Q1
+    day_of_month    INT,           -- 1
+    day_of_week     INT,           -- 1 (Monday) to 7 (Sunday)
+    day_name        NVARCHAR(20),  -- Monday
+    is_weekend      INT,           -- 1 if Saturday/Sunday, else 0
+    is_weekday      INT,           -- 1 if Mon-Fri, else 0
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+GO

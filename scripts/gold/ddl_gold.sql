@@ -164,32 +164,28 @@ CREATE TABLE silver.organizations(
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
-IF OBJECT_ID('silver.patients','U') IS NOT NULL
-	DROP TABLE silver.patients;
-CREATE TABLE silver.patients(
-	id NVARCHAR(255),
-	birthdate DATETIME,
-	deathdate DATETIME,
-	ssn NVARCHAR(50),
-	drivers NVARCHAR(50),
-	passport NVARCHAR(50),
-	prefix NVARCHAR(50),
-	first NVARCHAR(50),
-	last NVARCHAR(50),
-	suffix NVARCHAR(50),
-	maiden NVARCHAR(255),
-	marital NVARCHAR(50),
+IF OBJECT_ID('gold.dim_patients','U') IS NOT NULL
+	DROP TABLE gold.patients;
+CREATE TABLE gold.patients(
+	patient_key INT IDENTITY(1,1),
+	patient_id NVARCHAR(255),
+	first_name NVARCHAR(50),
+	last_name NVARCHAR(50),
+	full_name NVARCHAR(100),
+	birthdate DATE,
+	deathdate DATE,
+	age INT,
+	is_deceased INT,
+	gender NVARCHAR(50),
 	race NVARCHAR(50),
 	ethnicity NVARCHAR(255),
-	gender NVARCHAR(50),
+	marital_status NVARCHAR(50),
 	birthplace NVARCHAR(255),
 	address NVARCHAR(255),
 	city NVARCHAR(50),
 	state NVARCHAR(50),
 	county NVARCHAR(50),
 	zip NVARCHAR(50),
-	lat DECIMAL(18,6),
-	lon DECIMAL(18,6),
 	healthcare_expenses DECIMAL(18,2),
 	healthcare_coverage DECIMAL(18,2),
 	dwh_create_date DATETIME2 DEFAULT GETDATE()

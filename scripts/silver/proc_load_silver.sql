@@ -735,3 +735,8 @@ GO
 
 EXEC silver.load_silver; -- exec the whole load
 GO
+
+GO
+
+EXEC silver.load_silver; -- exec the whole load
+GO

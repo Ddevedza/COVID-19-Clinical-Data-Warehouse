@@ -4,7 +4,7 @@ Stored Procedure: Load Silver Layer (Bronze -> Silver)
 =====================================================================
 Creating batch loading for silver data. This procedure truncates and
 reloads all silver tables from bronze, applying:
-    - Data type casting (NVARCHAR -> DATE, DATETIME, INT, DECIMAL)
+    - Data type casting (NVARCHAR -> DATE, DATE, INT, DECIMAL)
     - String standardization (TRIM, LOWER, TRANSLATE)
     - NULL handling and preservation
     - Deduplication (ROW_NUMBER)
@@ -15,7 +15,7 @@ reloads all silver tables from bronze, applying:
 CREATE OR ALTER PROCEDURE silver.load_silver  
 AS 
 BEGIN
-	DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME, @batch_end_time DATETIME; -- defining time variables so we can check each separate execution, along with total batch execution
+	DECLARE @start_time DATE, @end_time DATE, @batch_start_time DATE, @batch_end_time DATE; -- defining time variables so we can check each separate execution, along with total batch execution
 -- Start of the procedure
 
     BEGIN TRY
@@ -41,8 +41,8 @@ BEGIN
 	        description
 	        )
         SELECT
-	        TRY_CAST(start as DATETIME) start, -- Turning data into datetime if possible
-	        TRY_CAST(stop as DATETIME) stop,
+	        TRY_CAST(start as DATE) start, -- Turning data into DATE if possible
+	        TRY_CAST(stop as DATE) stop,
 	        TRIM(patient) patient_id,
 	        TRIM(encounter) encounter_id,
 	        TRIM(code) code,
@@ -76,8 +76,8 @@ BEGIN
 
         SELECT 
 	        TRIM(id) id,
-	        TRY_CAST(start as DATETIME) start, -- Turning data into date if possible
-	        TRY_CAST(stop as DATETIME) stop,
+	        TRY_CAST(start as DATE) start, -- Turning data into date if possible
+	        TRY_CAST(stop as DATE) stop,
 	        TRIM(patient) patient_id,
 	        TRIM(encounter) encounter_id,
 	        TRIM(code) code,
@@ -108,8 +108,8 @@ BEGIN
 	        description
 	        )
         SELECT
-	        TRY_CAST(start as DATETIME) start, -- Turning data into date if possible
-	        TRY_CAST(stop as DATETIME) stop,
+	        TRY_CAST(start as DATE) start, -- Turning data into date if possible
+	        TRY_CAST(stop as DATE) stop,
 	        TRIM(patient) patient_id,
 	        TRIM(encounter) encounter_id,
 	        TRIM(code) code,
@@ -139,8 +139,8 @@ BEGIN
             udi
             )
         SELECT
-            TRY_CAST(start as DATETIME) start, -- Turning data into datetime if possible
-            TRY_CAST(stop as DATETIME) stop,
+            TRY_CAST(start as DATE) start, -- Turning data into DATE if possible
+            TRY_CAST(stop as DATE) stop,
             TRIM(patient) patient_id,
             TRIM(encounter) encounter_id,
             TRIM(code) code,
@@ -180,8 +180,8 @@ BEGIN
         )
         SELECT
             TRIM(id) AS id,
-            TRY_CAST(start AS DATETIME) AS start,
-            TRY_CAST(stop AS DATETIME) AS stop,
+            TRY_CAST(start AS DATE) AS start,
+            TRY_CAST(stop AS DATE) AS stop,
             TRIM(patient) AS patient_id,
             TRIM(organization) organization_id,
             TRIM(payer) payer_id,
@@ -223,7 +223,7 @@ BEGIN
         )
         SELECT
             TRIM(id) AS id,
-            TRY_CAST([date] AS DATETIME) AS [date],
+            TRY_CAST([date] AS DATE) AS [date],
             TRIM(patient) AS patient_id,
             TRIM(encounter) AS encounter_id,
             TRIM(bodysite_code) AS bodysite_code,
@@ -310,12 +310,12 @@ BEGIN
         FROM(
             SELECT
                 CASE 
-                    WHEN TRY_CAST(stop AS DATETIME) < TRY_CAST(start AS DATETIME) THEN TRY_CAST(stop AS DATETIME)
-                    ELSE TRY_CAST(start AS DATETIME) 
+                    WHEN TRY_CAST(stop AS DATE) < TRY_CAST(start AS DATE) THEN TRY_CAST(stop AS DATE)
+                    ELSE TRY_CAST(start AS DATE) 
                 END AS start,
                 CASE 
-                    WHEN TRY_CAST(stop AS DATETIME) < TRY_CAST(start AS DATETIME) THEN TRY_CAST(start AS DATETIME)
-                    ELSE TRY_CAST(stop AS DATETIME) 
+                    WHEN TRY_CAST(stop AS DATE) < TRY_CAST(start AS DATE) THEN TRY_CAST(start AS DATE)
+                    ELSE TRY_CAST(stop AS DATE) 
                 END AS stop,
                 TRIM(patient) AS patient_id,
                 TRIM(payer) AS payer_id,
@@ -366,7 +366,7 @@ BEGIN
             type
         )
         SELECT
-            TRY_CAST([date] AS DATETIME) AS [date],
+            TRY_CAST([date] AS DATE) AS [date],
             TRIM(patient) AS patient_id,
             TRIM(encounter) AS encounter_id,
             TRIM(code) AS code,
@@ -467,8 +467,8 @@ BEGIN
         )
         SELECT
             TRIM(id) AS id,
-            TRY_CAST(birthdate AS DATETIME) AS birthdate,
-            TRY_CAST(deathdate AS DATETIME) AS deathdate,
+            TRY_CAST(birthdate AS DATE) AS birthdate,
+            TRY_CAST(deathdate AS DATE) AS deathdate,
             TRIM(ssn) AS ssn,
             TRIM(drivers) AS drivers,
             TRIM(passport) AS passport,
@@ -624,7 +624,7 @@ BEGIN
             reasondescription
         )
         SELECT
-            TRY_CAST(date AS DATETIME),
+            TRY_CAST(date AS DATE),
             TRIM(patient) AS patient_id,
             TRIM(encounter) AS encounter_id,
             TRIM(code) AS code,

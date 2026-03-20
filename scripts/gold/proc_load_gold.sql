@@ -67,6 +67,8 @@ SELECT
     healthcare_coverage
 FROM silver.patients;
 
+GO
+
 -- Generate dates from 1900-01-01 to 2100-12-31
 WITH date_cte AS (
     SELECT CAST('1900-01-01' AS DATE) AS full_date

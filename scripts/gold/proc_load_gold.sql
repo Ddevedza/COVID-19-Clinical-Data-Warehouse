@@ -66,3 +66,41 @@ SELECT
     healthcare_expenses,
     healthcare_coverage
 FROM silver.patients;
+
+-- Generate dates from 1900-01-01 to 2100-12-31
+WITH date_cte AS (
+    SELECT CAST('1900-01-01' AS DATE) AS full_date
+    UNION ALL
+    SELECT DATEADD(DAY, 1, full_date)
+    FROM date_cte
+    WHERE full_date < '2100-12-31'
+)
+INSERT INTO gold.dim_date (
+    date_key,
+    full_date,
+    year,
+    month,
+    month_name,
+    quarter,
+    quarter_name,
+    day_of_month,
+    day_of_week,
+    day_name,
+    is_weekend,
+    is_weekday
+)
+SELECT
+    -- date_key as integer YYYYMMDD for fast joining
+    CAST(FORMAT(full_date, 'yyyyMMdd') AS INT) AS date_key,
+    full_date,
+    YEAR(full_date) AS year,
+    MONTH(full_date) AS month,
+    DATENAME(MONTH, full_date) AS month_name,
+    DATEPART(QUARTER, full_date) AS quarter,
+    'Q' + CAST(DATEPART(QUARTER, full_date) AS NVARCHAR) AS quarter_name,
+    DAY(full_date) AS day_of_month,
+    DATEPART(WEEKDAY, full_date) AS day_of_week,
+    DATENAME(WEEKDAY, full_date) AS day_name,
+    CASE WHEN DATEPART(WEEKDAY, full_date) IN (1, 7) THEN 1 ELSE 0 END AS is_weekend,
+    CASE WHEN DATEPART(WEEKDAY, full_date) IN (1, 7) THEN 0 ELSE 1 END AS is_weekday
+FROM date_cte

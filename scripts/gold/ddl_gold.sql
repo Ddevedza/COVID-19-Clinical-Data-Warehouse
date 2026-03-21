@@ -147,18 +147,17 @@ CREATE TABLE silver.observations(
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
-IF OBJECT_ID('silver.organizations','U') IS NOT NULL
-	DROP TABLE silver.organizations;
-CREATE TABLE silver.organizations(
-	id NVARCHAR(255),
-	name NVARCHAR(255),
-	address NVARCHAR(255),
-	city NVARCHAR(255),
-	state NVARCHAR(50),
-	zip NVARCHAR(50),
-	lat DECIMAL(18,6),
-	lon DECIMAL(18,6),
-	phone NVARCHAR(50),
+IF OBJECT_ID('gold.dim_organizations','U') IS NOT NULL
+	DROP TABLE gold.organizations;
+CREATE TABLE gold.organizations(
+	organization_key INT IDENTITY(1,1),
+	organization_id NVARCHAR(255),
+	organization_name NVARCHAR(255), 
+	organization_address NVARCHAR(255),
+	organization_city NVARCHAR(255),
+	organization_state NVARCHAR(50),
+	organization_zip NVARCHAR(50),
+	organization_phone NVARCHAR(50),
 	revenue DECIMAL(18,2),
 	utilization INT,
 	dwh_create_date DATETIME2 DEFAULT GETDATE()

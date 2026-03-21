@@ -67,6 +67,36 @@ SELECT
     healthcare_coverage
 FROM silver.patients;
 
+GO 
+
+TRUNCATE TABLE gold.dim_organizations;
+
+INSERT INTO gold.organizations (
+    organization_id,
+	organization_name,
+	organization_address,
+	organization_city,
+	organization_state,
+	organization_zip,
+	organization_phone,
+	revenue,
+	utilization
+)
+
+SELECT
+	id as organization_id,
+	name AS organization_name, -- aliased for clarity
+	address AS organization_address,
+	city AS organization_city,
+	state AS organization_state,
+	zip AS organization_zip,
+	phone AS organization_phone,
+	revenue, -- total organization revenue (kept for reference)
+	utilization -- total encounter count at this organization
+FROM silver.organizations
+
+
+
 GO
 
 -- Generate dates from 1900-01-01 to 2100-12-31

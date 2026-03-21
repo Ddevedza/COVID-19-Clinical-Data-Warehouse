@@ -201,31 +201,32 @@ CREATE TABLE silver.payer_transitions(
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
-IF OBJECT_ID('silver.payers','U') IS NOT NULL
-	DROP TABLE silver.payers;
-CREATE TABLE silver.payers (
-	id NVARCHAR(255),
-	name NVARCHAR(255),
-	address NVARCHAR(255),
-	city NVARCHAR(255),
-	state_headquartered NVARCHAR(50),
-	zip NVARCHAR(50),
-	phone NVARCHAR(50),
-	amount_covered DECIMAL(18,2),
-	amount_uncovered DECIMAL(18,2),
-	revenue DECIMAL(18,2),
-	covered_encounters INT,
-	uncovered_encounters INT,
-	covered_medications INT,
-	uncovered_medications INT,
-	covered_procedures INT,
-	uncovered_procedures INT,
-	covered_immunizations INT,
-	uncovered_immunizations INT,
-	unique_customers INT,
-	qols_avg FLOAT,
-	member_months INT,
-	dwh_create_date DATETIME2 DEFAULT GETDATE()
+IF OBJECT_ID('gold.dim_payer','U') IS NOT NULL
+    DROP TABLE gold.dim_payer;
+CREATE TABLE gold.dim_payer(
+    payer_key               INT IDENTITY(1,1),  -- surrogate key, auto-generated
+    payer_id                NVARCHAR(255),       -- natural key from source (UUID)
+    payer_name              NVARCHAR(255),
+    payer_address           NVARCHAR(255),       -- prefixed to avoid ambiguity in joins
+    payer_city              NVARCHAR(255),
+    payer_state             NVARCHAR(50),
+    payer_zip               NVARCHAR(50),
+    payer_phone             NVARCHAR(50),
+    amount_covered          DECIMAL(18,2),       -- total amount covered by payer
+    amount_uncovered        DECIMAL(18,2),       -- total amount not covered
+    revenue                 DECIMAL(18,2),
+    covered_encounters      INT,
+    uncovered_encounters    INT,
+    covered_medications     INT,
+    uncovered_medications   INT,
+    covered_procedures      INT,
+    uncovered_procedures    INT,
+    covered_immunizations   INT,
+    uncovered_immunizations INT,
+    unique_customers        INT,                 -- total unique patients covered
+    qols_avg                FLOAT,              -- quality of life score [0-1], capped in Silver
+    member_months           INT,                 -- total member months of coverage
+    dwh_create_date         DATETIME2 DEFAULT GETDATE()
 );
 
 

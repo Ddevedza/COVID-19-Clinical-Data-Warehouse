@@ -150,8 +150,8 @@ CREATE TABLE silver.observations(
 IF OBJECT_ID('gold.dim_organizations','U') IS NOT NULL
 	DROP TABLE gold.organizations;
 CREATE TABLE gold.organizations(
-	organization_key INT IDENTITY(1,1),
-	organization_id NVARCHAR(255),
+	organization_key INT IDENTITY(1,1), -- surrogate key
+	organization_id NVARCHAR(255), -- natural key
 	organization_name NVARCHAR(255), 
 	organization_address NVARCHAR(255),
 	organization_city NVARCHAR(255),

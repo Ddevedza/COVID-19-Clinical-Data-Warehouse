@@ -155,15 +155,6 @@ SELECT
     amount_covered,
     amount_uncovered,
     revenue,
-    covered_encounters,
-    uncovered_encounters,
-    covered_medications,
-    uncovered_medications,
-    covered_procedures,
-    uncovered_procedures,
-    covered_immunizations,
-    uncovered_immunizations,
-    unique_customers,
     qols_avg,   -- already capped to [0,1] in Silver layer
     member_months
 FROM silver.payers;

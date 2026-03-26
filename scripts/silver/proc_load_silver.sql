@@ -467,8 +467,27 @@ BEGIN
         )
         SELECT
             TRIM(id) AS id,
-            TRY_CAST(birthdate AS DATE) AS birthdate,
-            TRY_CAST(deathdate AS DATE) AS deathdate,
+            -- Source birthdate format is YY/MM/DD (format code 11)
+			-- TRY_CONVERT handles this correctly where TRY_CAST would fail or misinterpret
+			-- As we don't have more information on the actual dates and possible interpretations I subtracted 100 years in two cases:
+			--   1. Birthdate lands in the future (SQL Server misread century as 2000s)
+			--   2. Birthdate is greater than deathdate after deathdate is century-corrected first
+			CASE 
+			    WHEN TRY_CONVERT(DATE, birthdate, 11) > GETDATE()
+			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, birthdate, 11))
+			    WHEN TRY_CONVERT(DATE, birthdate, 11) > (
+			        CASE 
+			            WHEN TRY_CONVERT(DATE, deathdate, 11) > GETDATE()
+			            THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, deathdate, 11))
+			        ELSE TRY_CONVERT(DATE, deathdate, 11) END)
+			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, birthdate, 11))
+			    ELSE TRY_CONVERT(DATE, birthdate, 11)
+			END AS birthdate,
+			CASE 
+			    WHEN TRY_CONVERT(DATE, deathdate, 11) > GETDATE()
+			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, deathdate, 11))
+			    ELSE TRY_CONVERT(DATE, deathdate, 11)
+			END AS deathdate,
             TRIM(ssn) AS ssn,
             TRIM(drivers) AS drivers,
             TRIM(passport) AS passport,

@@ -238,7 +238,7 @@ CREATE TABLE bronze.providers(
 	organization NVARCHAR(255),
 	name NVARCHAR(255),
 	gender NVARCHAR(50),
-	speciality NVARCHAR(50),
+	specialty NVARCHAR(50),
 	address NVARCHAR(255),
 	city NVARCHAR(255),
 	state NVARCHAR(50),

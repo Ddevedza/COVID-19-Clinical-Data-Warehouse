@@ -89,6 +89,7 @@ CREATE TABLE gold.dim_payer(
     amount_covered          DECIMAL(18,2),       -- total amount covered by payer
     amount_uncovered        DECIMAL(18,2),       -- total amount not covered
     revenue                 DECIMAL(18,2),
+    qols_avg                FLOAT,              -- quality of life score [0-1], capped in Silver
     member_months           INT,                 -- total member months of coverage
     dwh_create_date         DATETIME2 DEFAULT GETDATE()
 );

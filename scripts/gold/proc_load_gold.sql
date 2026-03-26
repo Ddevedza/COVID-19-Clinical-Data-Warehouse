@@ -156,6 +156,43 @@ SELECT
 FROM silver.payers;
 
 GO
+	
+TRUNCATE TABLE gold.dim_providers;
+
+INSERT INTO gold.dim_providers (
+    provider_id,
+    name,
+    gender,
+    specialty,
+    city,
+    state,
+    zip,
+    utilization,
+    organization_name,
+    organization_city,
+    organization_state
+)
+SELECT
+    p.id AS provider_id,
+    p.name AS provider_name,
+    CASE
+		WHEN LOWER(gender) IN ('f', 'female') THEN 'female' -- in case lower gender f or female, it is turned to female
+		WHEN LOWER(gender) IN ('m', 'male') THEN 'male'
+		ELSE 'unknown' -- unknown in any other case
+	END AS gender,
+    p.specialty,
+    p.city,
+    p.state,
+    p.zip,
+    p.utilization,
+    o.name AS organization_name,
+    o.city AS organization_city,
+    o.state AS organization_state
+FROM silver.providers p
+LEFT JOIN silver.organizations o
+ON o.id = p.organization_id;
+
+GO
 
 -- Generate dates from 1900-01-01 to 2100-12-31
 WITH date_cte AS (

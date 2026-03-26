@@ -71,7 +71,7 @@ GO
 
 TRUNCATE TABLE gold.dim_organizations;
 
-INSERT INTO gold.organizations (
+INSERT INTO gold.dim_organizations (
     organization_id,
 	organization_name,
 	organization_address,

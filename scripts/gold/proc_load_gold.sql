@@ -129,33 +129,6 @@ SELECT
 FROM silver.payers;
 
 GO
-
-TRUNCATE TABLE gold.dim_payer;
-	
-INSERT INTO gold.dim_payer (
-    payer_id,
-    payer_name,
-    payer_address,
-    payer_city,
-    payer_state,
-    payer_zip,
-    payer_phone,
-    qols_avg,
-    member_months
-)
-SELECT
-    id AS payer_id,
-    name AS payer_name,
-    ISNULL(address, 'unknown') AS payer_address,  -- NULL handling for missing address data
-    ISNULL(city, 'unknown') AS payer_city,
-    ISNULL(state_headquartered, 'unknown') AS payer_state,
-    ISNULL(zip, 'unknown') AS payer_zip,
-    ISNULL(phone, 'unknown') AS payer_phone,
-    qols_avg,   -- already capped to [0,1] in Silver layer
-    member_months
-FROM silver.payers;
-
-GO
 	
 TRUNCATE TABLE gold.dim_providers;
 

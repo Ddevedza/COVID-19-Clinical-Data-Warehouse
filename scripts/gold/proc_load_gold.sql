@@ -129,6 +129,8 @@ SELECT
 FROM silver.payers;
 
 GO
+
+TRUNCATE TABLE gold.dim_payer;
 	
 INSERT INTO gold.dim_payer (
     payer_id,
@@ -138,9 +140,6 @@ INSERT INTO gold.dim_payer (
     payer_state,
     payer_zip,
     payer_phone,
-    amount_covered,
-    amount_uncovered,
-    revenue,
     qols_avg,
     member_months
 )
@@ -152,9 +151,6 @@ SELECT
     ISNULL(state_headquartered, 'unknown') AS payer_state,
     ISNULL(zip, 'unknown') AS payer_zip,
     ISNULL(phone, 'unknown') AS payer_phone,
-    amount_covered,
-    amount_uncovered,
-    revenue,
     qols_avg,   -- already capped to [0,1] in Silver layer
     member_months
 FROM silver.payers;
@@ -198,3 +194,4 @@ SELECT
     CASE WHEN DATEPART(WEEKDAY, full_date) IN (1, 7) THEN 1 ELSE 0 END AS is_weekend,
     CASE WHEN DATEPART(WEEKDAY, full_date) IN (1, 7) THEN 0 ELSE 1 END AS is_weekday
 FROM date_cte
+OPTION (MAXRECURSION 0);

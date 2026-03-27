@@ -93,13 +93,13 @@ CREATE TABLE gold.dim_provider(
 IF OBJECT_ID('gold.fact_encounter','U') IS NOT NULL
 	DROP TABLE gold.fact_encounter;
 CREATE TABLE gold.fact_encounter(
-	encounter_key INT IDENTITY(1,1),
-	encounter_id NVARCHAR(255),
-	patient_key INT,
-	organization_key INT,
-	provider_key INT,
-	payer_key INT,
-	date_key INT,
+	encounter_key INT IDENTITY(1,1), -- surogate key
+	encounter_id NVARCHAR(255), -- encounter id
+	patient_key INT, -- primary key from patient table
+	organization_key INT, -- primary key from organization table
+	provider_key INT, -- primary key from provider table
+	payer_key INT, -- primary key from payer table
+	date_key INT, -- primary key from date table
 	encounterclass NVARCHAR(255),
 	reasondescription NVARCHAR(255),
 	description NVARCHAR(500),

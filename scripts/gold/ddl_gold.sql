@@ -141,3 +141,18 @@ CREATE TABLE gold.fact_condition(
 	is_active INT, -- 1 if stop is NULL, 0 if condition is resolved (stop not NULL)
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
+
+IF OBJECT_ID('gold.fact_observation','U') IS NOT NULL
+	DROP TABLE gold.fact_observation;
+CREATE TABLE gold.fact_observation(
+	observation_key INT IDENTITY(1,1), -- surogate key
+	patient_key INT, -- patient table key
+	encounter_key INT, -- encounter table key
+	date_key INT,
+	observation_date DATE,
+	code NVARCHAR(50), -- SNOMED-CT condition code
+	value NVARCHAR(50), -- observation result
+	unit NVARCHAR(50),
+	description NVARCHAR(500), -- observation description
+	dwh_create_date DATETIME2 DEFAULT GETDATE()
+);

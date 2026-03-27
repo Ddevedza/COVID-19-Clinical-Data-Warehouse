@@ -205,3 +205,41 @@ SELECT
     CASE WHEN DATEPART(WEEKDAY, full_date) IN (1, 7) THEN 0 ELSE 1 END AS is_weekday
 FROM date_cte
 OPTION (MAXRECURSION 0);
+
+GO
+
+TRUNCATE TABLE gold.fact_encounter
+
+INSERT INTO gold.fact_encounter (
+	encounter_id,
+	patient_key,
+	organization_key,
+	provider_key,
+	payer_key,
+	date_key,
+	encounterclass,
+	description,
+	reasondescription,
+	base_encounter_cost,
+	total_claim_cost,
+	payer_coverage
+)
+SELECT
+    e.id AS encounter_id,
+    p.patient_key,
+    o.organization_key,
+    pr.provider_key,
+    py.payer_key,
+    d.date_key,
+    e.encounterclass,
+    e.description,
+    e.reasondescription,
+    e.base_encounter_cost,
+    e.total_claim_cost,
+    e.payer_coverage
+FROM silver.encounters e
+LEFT JOIN gold.dim_patient p ON p.patient_id = e.patient_id
+LEFT JOIN gold.dim_organization o ON o.organization_id = e.organization_id
+LEFT JOIN gold.dim_provider pr ON pr.provider_id = e.provider_id
+LEFT JOIN gold.dim_payer py ON py.payer_id = e.payer_id
+LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(e.start, 'yyyyMMdd') AS INT)

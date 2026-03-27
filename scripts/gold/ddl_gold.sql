@@ -9,31 +9,9 @@ Creating tables with existing table based data
 Silver layer: cleaned, standardized, validated and integrated clinical data
 */
 
-
-IF OBJECT_ID('silver.encounters','U') IS NOT NULL
-	DROP TABLE silver.encounters;
-CREATE TABLE silver.encounters(
-	id NVARCHAR(255),
-	start DATETIME,
-	stop DATETIME,
-	patient_id NVARCHAR(255),
-	organization_id NVARCHAR(255),
-	payer_id NVARCHAR (255),
-	provider_id NVARCHAR(255),
-	encounterclass NVARCHAR(255),
-	code NVARCHAR(50),
-	description NVARCHAR(500),
-	base_encounter_cost DECIMAL(18,2),
-	total_claim_cost DECIMAL(18,2),
-	payer_coverage DECIMAL(18,2),
-	reasoncode  NVARCHAR(50),
-	reasondescription NVARCHAR(255),
-	dwh_create_date DATETIME2 DEFAULT GETDATE()
-);
-
-IF OBJECT_ID('gold.dim_organizations','U') IS NOT NULL
-	DROP TABLE gold.dim_organizations;
-CREATE TABLE gold.dim_organizations(
+IF OBJECT_ID('gold.dim_organization','U') IS NOT NULL
+	DROP TABLE gold.dim_organization;
+CREATE TABLE gold.dim_organization(
 	organization_key INT IDENTITY(1,1), -- surrogate key
 	organization_id NVARCHAR(255), -- natural key
 	organization_name NVARCHAR(255), 
@@ -94,9 +72,9 @@ CREATE TABLE gold.dim_payer(
     dwh_create_date         DATETIME2 DEFAULT GETDATE()
 );
 
-IF OBJECT_ID('gold.dim_providers','U') IS NOT NULL
-	DROP TABLE gold.dim_providers;
-CREATE TABLE gold.dim_providers(
+IF OBJECT_ID('gold.dim_provider','U') IS NOT NULL
+	DROP TABLE gold.dim_provider;
+CREATE TABLE gold.dim_provider(
     provider_key INT IDENTITY(1,1),
 	provider_id NVARCHAR(255),
 	name NVARCHAR(255),

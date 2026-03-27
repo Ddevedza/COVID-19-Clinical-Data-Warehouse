@@ -243,3 +243,35 @@ LEFT JOIN gold.dim_organization o ON o.organization_id = e.organization_id
 LEFT JOIN gold.dim_provider pr ON pr.provider_id = e.provider_id
 LEFT JOIN gold.dim_payer py ON py.payer_id = e.payer_id
 LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(e.start, 'yyyyMMdd') AS INT)
+
+GO 
+
+TRUNCATE TABLE gold.fact_condition;
+
+INSERT INTO gold.fact_condition(
+	patient_key,
+	encounter_key,
+	date_key,
+	start_date,
+	end_date,
+	code,
+	description,
+	is_active
+)
+SELECT
+	p.patient_key,
+	e.encounter_key,
+	d.date_key,
+	c.start AS start_date,
+	c.stop AS end_date,
+	c.code,
+	c.description,
+	-- Checking if patients condition is still active defined by end date - is_active
+	CASE 
+		WHEN c.stop IS NULL THEN 1
+		ELSE 0
+	END AS is_active
+FROM silver.conditions c
+LEFT JOIN gold.dim_patient p ON p.patient_id=c.patient_id
+LEFT JOIN gold.fact_encounter e ON e.encounter_id=c.encounter_id
+LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(c.start, 'yyyyMMdd') AS INT);

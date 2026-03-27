@@ -275,3 +275,32 @@ FROM silver.conditions c
 LEFT JOIN gold.dim_patient p ON p.patient_id=c.patient_id
 LEFT JOIN gold.fact_encounter e ON e.encounter_id=c.encounter_id
 LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(c.start, 'yyyyMMdd') AS INT);
+
+GO 
+
+TRUNCATE TABLE gold.fact_observation;
+
+INSERT INTO gold.fact_observation(
+	patient_key,
+	encounter_key,
+	date_key,
+	observation_date,
+	code,
+	value,
+	unit,
+	description
+)
+
+SELECT 
+	p.patient_key,
+	e.encounter_key,
+	d.date_key,
+	o.date AS observation_date,
+	o.code,
+	o.value,
+	o.units AS unit,
+	o.description
+FROM silver.observations o
+LEFT JOIN gold.dim_patient p ON p.patient_id=o.patient_id
+LEFT JOIN gold.fact_encounter e ON e.encounter_id=o.encounter_id
+LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(o.date, 'yyyyMMdd') AS INT);

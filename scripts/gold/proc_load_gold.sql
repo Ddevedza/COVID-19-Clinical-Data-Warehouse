@@ -69,9 +69,9 @@ FROM silver.patients;
 
 GO 
 
-TRUNCATE TABLE gold.dim_organizations;
+TRUNCATE TABLE gold.dim_organization;
 
-INSERT INTO gold.dim_organizations (
+INSERT INTO gold.dim_organization (
     organization_id,
 	organization_name,
 	organization_address,
@@ -130,9 +130,9 @@ FROM silver.payers;
 
 GO
 	
-TRUNCATE TABLE gold.dim_providers;
+TRUNCATE TABLE gold.dim_provider;
 
-INSERT INTO gold.dim_providers (
+INSERT INTO gold.dim_provider (
     provider_id,
     name,
     gender,

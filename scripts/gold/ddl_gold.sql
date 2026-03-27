@@ -156,3 +156,25 @@ CREATE TABLE gold.fact_observation(
 	description NVARCHAR(500), -- observation description
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
+
+IF OBJECT_ID('gold.fact_medication','U') IS NOT NULL
+	DROP TABLE gold.fact_medication;
+CREATE TABLE gold.fact_medication(
+	medication_key INT IDENTITY(1,1), -- surogate key
+	patient_key INT, -- patient table key
+	payer_key INT, -- payer table id key
+	encounter_key INT, -- encounter table id key
+	date_key INT, -- date table id key
+	start_date DATE, -- medication use start date
+	end_date DATE, -- medication use end date
+	code NVARCHAR(50), 
+	medication_description NVARCHAR(500),
+	base_cost DECIMAL(18,2), -- medication cost
+	payer_coverage DECIMAL(18,2), -- covered cost of medication
+	dispenses INT,
+	totalcost DECIMAL(18,2), -- total cost with dispenses
+	reason_code  NVARCHAR(50), 
+	reason_description NVARCHAR(255), -- reason for medication
+	dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+

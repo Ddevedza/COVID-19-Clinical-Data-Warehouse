@@ -298,7 +298,9 @@ SELECT
 	o.date AS observation_date,
 	o.code,
 	o.value,
-	o.units AS unit,
+	CASE WHEN o.units IS NULL THEN 'none'
+	ELSE o.units
+	END AS unit,
 	o.description
 FROM silver.observations o
 LEFT JOIN gold.dim_patient p ON p.patient_id=o.patient_id

@@ -90,6 +90,25 @@ CREATE TABLE gold.dim_provider(
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
+IF OBJECT_ID('gold.fact_encounter','U') IS NOT NULL
+	DROP TABLE gold.fact_encounter;
+CREATE TABLE gold.fact_encounter(
+	encounter_key INT IDENTITY(1,1),
+	encounter_id NVARCHAR(255),
+	patient_key INT,
+	organization_key INT,
+	provider_key INT,
+	payer_key INT,
+	date_key INT,
+	encounterclass NVARCHAR(255),
+	reasondescription NVARCHAR(255),
+	description NVARCHAR(500),
+	base_encounter_cost DECIMAL(18,2),
+	total_claim_cost DECIMAL(18,2),
+	payer_coverage DECIMAL(18,2),
+	dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+
 IF OBJECT_ID('gold.dim_date', 'U') IS NOT NULL
     DROP TABLE gold.dim_date;
 CREATE TABLE gold.dim_date (

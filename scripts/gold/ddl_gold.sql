@@ -178,3 +178,18 @@ CREATE TABLE gold.fact_medication(
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
+IF OBJECT_ID('gold.fact_procedure','U') IS NOT NULL
+    DROP TABLE gold.fact_procedure;
+CREATE TABLE gold.fact_procedure(
+    procedure_key   INT IDENTITY(1,1), -- surrogate key
+    patient_key     INT,               -- dim_patient id key table
+    encounter_key   INT,               -- fact_encounter id key
+    date_key        INT,               -- dim_date id key
+    procedure_date  DATE,              -- date procedure was performed
+    code            NVARCHAR(50),      -- SNOMED-CT procedure code
+    procedure_description NVARCHAR(500),
+    base_cost       DECIMAL(18,2),     -- cost of procedure
+    reason_code     NVARCHAR(50),      -- reason for procedure (nullable)
+    reason_description NVARCHAR(255),  -- reason description (nullable)
+    dwh_create_date DATETIME2 DEFAULT GETDATE()
+);

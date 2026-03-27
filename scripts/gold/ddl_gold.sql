@@ -126,4 +126,18 @@ CREATE TABLE gold.dim_date (
     is_weekday      INT,           -- 1 if Mon-Fri, else 0
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
-GO
+
+IF OBJECT_ID('gold.fact_condition','U') IS NOT NULL
+	DROP TABLE gold.fact_condition;
+CREATE TABLE gold.fact_condition(
+	condition_key INT IDENTITY(1,1), -- surogate key
+	patient_key INT, -- patient table key
+	encounter_key INT, -- encounter table key
+	date_key INT,
+	start_date DATE, -- when condition was diagnosed
+	end_date DATE, -- when condition was resolved (NULL = active)
+	code NVARCHAR(50), -- SNOMED-CT condition code
+	description NVARCHAR(500), -- condition name
+	is_active INT, -- 1 if stop is NULL, 0 if condition is resolved (stop not NULL)
+	dwh_create_date DATETIME2 DEFAULT GETDATE()
+);

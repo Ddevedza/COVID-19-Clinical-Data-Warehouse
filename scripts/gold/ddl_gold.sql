@@ -1,12 +1,12 @@
 
 /*
-DDL Script : Create silver Tables
+DDL Script : Create gold Tables
 
 -------------------------------------------------------------------
 
 Creating tables with existing table based data
 
-Silver layer: cleaned, standardized, validated and integrated clinical data
+Gold layer: upgraded, corrected, made into business logic
 */
 
 IF OBJECT_ID('gold.dim_organization','U') IS NOT NULL
@@ -77,7 +77,7 @@ IF OBJECT_ID('gold.dim_provider','U') IS NOT NULL
 CREATE TABLE gold.dim_provider(
     provider_key INT IDENTITY(1,1),
 	provider_id NVARCHAR(255),
-	name NVARCHAR(255),
+	provider_name NVARCHAR(255),
 	gender NVARCHAR(50),
 	specialty NVARCHAR(50),
 	city NVARCHAR(255),
@@ -87,25 +87,6 @@ CREATE TABLE gold.dim_provider(
     organization_name NVARCHAR(255),
     organization_city NVARCHAR(255),
     organization_state NVARCHAR(50),
-	dwh_create_date DATETIME2 DEFAULT GETDATE()
-);
-
-IF OBJECT_ID('gold.fact_encounter','U') IS NOT NULL
-	DROP TABLE gold.fact_encounter;
-CREATE TABLE gold.fact_encounter(
-	encounter_key INT IDENTITY(1,1), -- surogate key
-	encounter_id NVARCHAR(255), -- encounter id
-	patient_key INT, -- primary key from patient table
-	organization_key INT, -- primary key from organization table
-	provider_key INT, -- primary key from provider table
-	payer_key INT, -- primary key from payer table
-	date_key INT, -- primary key from date table
-	encounterclass NVARCHAR(255),
-	reasondescription NVARCHAR(255),
-	description NVARCHAR(500),
-	base_encounter_cost DECIMAL(18,2),
-	total_claim_cost DECIMAL(18,2),
-	payer_coverage DECIMAL(18,2),
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
@@ -127,10 +108,29 @@ CREATE TABLE gold.dim_date (
     dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
 
+IF OBJECT_ID('gold.fact_encounter','U') IS NOT NULL
+	DROP TABLE gold.fact_encounter;
+CREATE TABLE gold.fact_encounter(
+	encounter_key INT IDENTITY(1,1), -- surrogate key
+	encounter_id NVARCHAR(255), -- encounter id
+	patient_key INT, -- primary key from patient table
+	organization_key INT, -- primary key from organization table
+	provider_key INT, -- primary key from provider table
+	payer_key INT, -- primary key from payer table
+	date_key INT, -- primary key from date table
+	encounterclass NVARCHAR(255),
+	reasondescription NVARCHAR(255),
+	description NVARCHAR(500),
+	base_encounter_cost DECIMAL(18,2),
+	total_claim_cost DECIMAL(18,2),
+	payer_coverage DECIMAL(18,2),
+	dwh_create_date DATETIME2 DEFAULT GETDATE()
+);
+
 IF OBJECT_ID('gold.fact_condition','U') IS NOT NULL
 	DROP TABLE gold.fact_condition;
 CREATE TABLE gold.fact_condition(
-	condition_key INT IDENTITY(1,1), -- surogate key
+	condition_key INT IDENTITY(1,1), -- surrogate key
 	patient_key INT, -- patient table key
 	encounter_key INT, -- encounter table key
 	date_key INT,
@@ -145,14 +145,14 @@ CREATE TABLE gold.fact_condition(
 IF OBJECT_ID('gold.fact_observation','U') IS NOT NULL
 	DROP TABLE gold.fact_observation;
 CREATE TABLE gold.fact_observation(
-	observation_key INT IDENTITY(1,1), -- surogate key
+	observation_key INT IDENTITY(1,1), -- surrogate key
 	patient_key INT, -- patient table key
 	encounter_key INT, -- encounter table key
 	date_key INT,
 	observation_date DATE,
 	code NVARCHAR(50), -- SNOMED-CT condition code
 	value NVARCHAR(50), -- observation result
-	unit NVARCHAR(50),
+	units NVARCHAR(50),
 	description NVARCHAR(500), -- observation description
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
@@ -160,7 +160,7 @@ CREATE TABLE gold.fact_observation(
 IF OBJECT_ID('gold.fact_medication','U') IS NOT NULL
 	DROP TABLE gold.fact_medication;
 CREATE TABLE gold.fact_medication(
-	medication_key INT IDENTITY(1,1), -- surogate key
+	medication_key INT IDENTITY(1,1), -- surrogate key
 	patient_key INT, -- patient table key
 	payer_key INT, -- payer table id key
 	encounter_key INT, -- encounter table id key

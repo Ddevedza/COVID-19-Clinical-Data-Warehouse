@@ -306,3 +306,46 @@ FROM silver.observations o
 LEFT JOIN gold.dim_patient p ON p.patient_id=o.patient_id
 LEFT JOIN gold.fact_encounter e ON e.encounter_id=o.encounter_id
 LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(o.date, 'yyyyMMdd') AS INT);
+
+
+GO 
+
+TRUNCATE TABLE gold.fact_medication
+
+INSERT INTO gold.fact_medication(
+	patient_key,
+	payer_key,
+	encounter_key,
+	date_key,
+	start_date,
+	end_date,
+	code,
+	medication_description,
+	base_cost,
+	payer_coverage,
+	dispenses,
+	totalcost,
+	reason_code,
+	reason_description
+)
+
+SELECT
+    p.patient_key,
+    py.payer_key,
+    fe.encounter_key,
+    d.date_key,
+    m.start AS start_date,
+    m.stop AS end_date,
+    m.code,
+    m.description AS medication_description,
+    m.base_cost,
+    m.payer_coverage,
+    m.dispenses,
+    m.totalcost,
+    m.reasoncode,
+    m.reasondescription
+FROM silver.medications m
+LEFT JOIN gold.dim_patient p ON p.patient_id = m.patient_id
+LEFT JOIN gold.dim_payer py ON py.payer_id = m.payer_id
+LEFT JOIN gold.fact_encounter fe ON fe.encounter_id = m.encounter_id
+LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(m.start, 'yyyyMMdd') AS INT)

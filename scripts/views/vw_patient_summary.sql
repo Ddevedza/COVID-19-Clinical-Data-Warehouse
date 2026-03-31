@@ -4,7 +4,7 @@
 --              encounter and condition counts
 -- =============================================
 
-CREATE VIEW vw_patient_summary AS
+CREATE VIEW gold.vw_patient_summary AS
 SELECT
 	gdp.full_name,
 	gdp.age,

@@ -334,6 +334,44 @@ WHERE base_cost < 0 or payer_coverage<0 or dispenses<0 or totalcost<0
 -- silver.observations
 -- ========================
 
+-- Row count check (Silver may differ from Bronze due to deduplication)
+SELECT COUNT(*) counted_silver_rows FROM silver.observations
+SELECT COUNT(*) counted_bronze_rows FROM bronze.observations
+
+-- Critical NULL check (encounter_id NULLs are expected)
+SELECT COUNT(*) FROM silver.observations WHERE patient_id IS NULL OR code IS NULL
+
+-- Separately document expected NULL encounter_ids
+SELECT COUNT(*) AS null_encounter_id_count
+FROM silver.observations
+WHERE encounter_id IS NULL
+
+-- Duplicate check (dedup applied in Silver)
+SELECT date, patient_id, encounter_id, code, value, units, type, COUNT(*)
+FROM silver.observations
+GROUP BY date, patient_id, encounter_id, code, value, units, type
+HAVING COUNT(*) > 1
+
+-- Failed date conversions
+SELECT COUNT(*) date_NULL_check FROM silver.observations WHERE date IS NULL
+
+-- FK orphan checks
+SELECT COUNT(*) FROM silver.observations o
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.patients p WHERE p.id = o.patient_id
+)
+
+-- Encounters exist (excluding expected NULLs)
+SELECT COUNT(*) FROM silver.observations o
+WHERE encounter_id IS NOT NULL
+AND NOT EXISTS (
+    SELECT 1 FROM silver.encounters e WHERE e.id = o.encounter_id
+)
+
+-- Type domain validation
+SELECT DISTINCT type FROM silver.observations
+-- Expected: numeric, text
+    
 -- ========================
 -- silver.organizations
 -- ========================
@@ -534,6 +572,89 @@ ORDER BY state_headquartered
 -- silver.procedures
 -- ========================
 
+-- Row count check
+SELECT COUNT(*) counted_silver_rows FROM silver.procedures
+SELECT COUNT(*) counted_bronze_rows FROM bronze.procedures
+
+-- Composite key NULL check
+SELECT COUNT(*) FROM silver.procedures
+WHERE patient_id IS NULL OR encounter_id IS NULL OR code IS NULL
+
+-- Duplicate check
+SELECT date, patient_id, encounter_id, code, COUNT(*)
+FROM silver.procedures
+GROUP BY date, patient_id, encounter_id, code
+HAVING COUNT(*) > 1
+
+-- Failed date conversions
+SELECT COUNT(*) date_NULL_check FROM silver.procedures WHERE date IS NULL
+
+-- Compare non-null dates between bronze and silver
+SELECT COUNT(*) counted_bronze_date FROM bronze.procedures WHERE date IS NOT NULL
+SELECT COUNT(*) counted_silver_date FROM silver.procedures WHERE date IS NOT NULL
+
+-- No future dates
+SELECT COUNT(*) FROM silver.procedures
+WHERE date > GETDATE()
+
+-- Negative cost check
+SELECT COUNT(*) FROM silver.procedures
+WHERE base_cost < 0
+
+-- FK orphan checks
+SELECT COUNT(*) FROM silver.procedures p
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.patients pt WHERE pt.id = p.patient_id
+)
+
+SELECT COUNT(*) FROM silver.procedures p
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.encounters e WHERE e.id = p.encounter_id
+)
+
 -- ========================
 -- silver.providers
 -- ========================
+
+-- Row count check
+SELECT COUNT(*) counted_silver_rows FROM silver.providers
+SELECT COUNT(*) counted_bronze_rows FROM bronze.providers
+
+-- PK NULL check
+SELECT COUNT(*) FROM silver.providers WHERE id IS NULL
+
+-- Duplicate check
+SELECT id, COUNT(*) AS duplicate_count
+FROM silver.providers
+GROUP BY id
+HAVING COUNT(*) > 1
+
+-- NULL check on important columns
+SELECT COUNT(*) FROM silver.providers
+WHERE name IS NULL OR specialty IS NULL OR organization_id IS NULL
+
+-- FK orphan check - organization exists
+SELECT COUNT(*) FROM silver.providers p
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.organizations o WHERE o.id = p.organization_id
+)
+
+-- Gender domain validation
+SELECT DISTINCT gender FROM silver.providers
+
+-- Specialty domain validation
+SELECT DISTINCT specialty FROM silver.providers
+ORDER BY specialty
+
+-- State domain validation
+SELECT DISTINCT state FROM silver.providers
+ORDER BY state
+
+-- Negative utilization check
+SELECT COUNT(*) FROM silver.providers
+WHERE utilization < 0
+
+-- Name number cleaning verification
+-- Expected: 0 rows after Silver cleaning
+SELECT COUNT(*) FROM silver.providers
+WHERE name LIKE '%[0-9]%'

@@ -245,6 +245,43 @@ ORDER BY modality_code
 -- ========================
 -- silver.immunizations
 -- ========================
+-- Checking if silver row count matches bronze
+SELECT COUNT(*) counted_silver_rows FROM silver.immunizations
+SELECT COUNT(*) counted_bronze_rows FROM bronze.immunizations
+
+-- Check if keys are not NULL
+SELECT * 
+FROM silver.immunizations
+WHERE code IS NULL or patient_id IS NULL or encounter_id IS NULL
+
+-- Check if there are unexpected duplicates
+SELECT encounter_id,patient_id,code,COUNT(*)
+FROM silver.immunizations
+GROUP BY encounter_id,patient_id,code
+HAVING COUNT(*)>1
+
+-- Failed date conversions
+SELECT COUNT(*) start_NULL_check FROM silver.immunizations WHERE date IS NULL
+
+-- Compare non-null dates between bronze and silver
+SELECT COUNT(*) counted_bronze_start FROM bronze.immunizations WHERE date IS NOT NULL
+SELECT COUNT(*) counted_silver_start FROM silver.immunizations WHERE date IS NOT NULL
+
+-- Patients exist in silver
+SELECT COUNT(*) FROM silver.immunizations i
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.patients p WHERE p.id = i.patient_id
+)
+
+-- encounters exist in silver
+SELECT COUNT(*) FROM silver.immunizations i
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.encounters e WHERE e.id = i.encounter_id
+)
+
+-- Negative cost check
+SELECT COUNT(*) FROM silver.immunizations
+WHERE base_cost < 0
 
 -- ========================
 -- silver.medications

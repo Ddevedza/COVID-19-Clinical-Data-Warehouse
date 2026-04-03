@@ -413,7 +413,7 @@ BEGIN
         )
         SELECT
             TRIM(id) AS id,
-            name,
+            REPLACE(TRIM(name), '  ', ' '),
             address,
             city,
             TRIM(state),

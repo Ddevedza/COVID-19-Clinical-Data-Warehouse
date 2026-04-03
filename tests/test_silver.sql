@@ -375,13 +375,160 @@ WHERE REPLACE(TRIM(name), '  ', ' ') LIKE '%  %'
 -- silver.patients
 -- ========================
 
+-- Row count check
+SELECT COUNT(*) counted_silver_rows FROM silver.patients
+SELECT COUNT(*) counted_bronze_rows FROM bronze.patients
+
+-- Check if keys are not NULL
+SELECT * 
+FROM silver.patients
+WHERE id IS NULL
+
+-- Check if there are unexpected duplicates
+SELECT id,COUNT(*) AS key_duplicates
+FROM silver.patients
+GROUP BY id
+HAVING COUNT(*)>1
+
+-- Failed start date conversions
+SELECT COUNT(*) birthdate_NULL_check FROM silver.patients WHERE birthdate IS NULL
+
+-- Compare non-null dates between bronze and silver
+SELECT COUNT(*) counted_bronze_start FROM bronze.patients WHERE birthdate IS NOT NULL
+SELECT COUNT(*) counted_silver_start FROM silver.patients WHERE birthdate IS NOT NULL
+
+-- checks if birthdates are before deathdates
+SELECT COUNT(*) FROM silver.patients
+WHERE deathdate < birthdate
+
+-- Gender column validity check
+SELECT DISTINCT gender
+FROM silver.patients
+
+-- Ethnicity column validity check
+SELECT DISTINCT ethnicity
+FROM silver.patients
+
+-- Ethnicity column validity check
+SELECT DISTINCT marital
+FROM silver.patients
+
+-- value negativity check
+SELECT healthcare_coverage,healthcare_expenses
+FROM silver.patients
+WHERE healthcare_coverage<0 or healthcare_expenses<0
+
+-- Verify no numbers remain in names after Silver cleaning
+SELECT COUNT(*) FROM silver.patients
+WHERE first LIKE '%[0-9]%'
+OR last LIKE '%[0-9]%'
+OR maiden LIKE '%[0-9]%'
+-- Expected: 0 rows
+
+-- invalid deathdate (over the current date)
+SELECT COUNT(*) FROM silver.patients
+WHERE deathdate > GETDATE()
+
+-- No one over 150 years old
+SELECT COUNT(*) FROM silver.patients
+WHERE DATEDIFF(YEAR, birthdate, GETDATE()) > 150
+
 -- ========================
 -- silver.payer_transitions
 -- ========================
 
+-- Checking if silver row count matches bronze
+SELECT COUNT(*) counted_silver_rows FROM silver.payer_transitions
+SELECT COUNT(*) counted_bronze_rows FROM bronze.payer_transitions
+
+-- Check if keys are not NULL
+SELECT * 
+FROM silver.payer_transitions
+WHERE patient_id IS NULL or payer_id IS NULL
+
+-- Check if there are unexpected duplicates
+SELECT patient_id,payer_id,start_year,COUNT(*) AS duplicate_count
+FROM silver.payer_transitions
+GROUP BY patient_id,payer_id,start_year
+HAVING COUNT(*)>1
+
+-- Failed start_year conversions
+SELECT COUNT(*) start_NULL_check FROM silver.payer_transitions WHERE start_year IS NULL
+
+-- Compare non-null dates between bronze and silver
+SELECT COUNT(*) counted_bronze_start FROM bronze.payer_transitions WHERE start_year IS NOT NULL
+SELECT COUNT(*) counted_silver_start FROM silver.payer_transitions WHERE start_year IS NOT NULL
+SELECT COUNT(*) counted_bronze_start FROM bronze.payer_transitions WHERE end_year IS NOT NULL
+SELECT COUNT(*) counted_silver_start FROM silver.payer_transitions WHERE end_year IS NOT NULL
+
+-- checks if stops are before start_year
+SELECT COUNT(*) FROM silver.payer_transitions
+WHERE end_year < start_year
+
+-- Patients exist in silver
+SELECT COUNT(*) FROM silver.payer_transitions pt
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.patients p WHERE p.id = pt.patient_id
+)
+
+-- Payers exist in silver
+SELECT COUNT(*) FROM silver.payer_transitions pt
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.payers p WHERE p.id = pt.payer_id
+)
+
+-- Ownership domain validation
+-- Note: some records have NULL ownership - Synthea generation artifact
+SELECT DISTINCT ownership
+FROM silver.payer_transitions
+-- Expected: Self, Guardian, Spouse, NULL
+
 -- ========================
 -- silver.payers
 -- ========================
+
+-- Row count check
+SELECT COUNT(*) counted_silver_rows FROM silver.payers
+SELECT COUNT(*) counted_bronze_rows FROM bronze.payers
+
+-- PK NULL check
+SELECT COUNT(*) FROM silver.payers WHERE id IS NULL
+
+-- Duplicate check
+SELECT id, COUNT(*) AS duplicate_count
+FROM silver.payers
+GROUP BY id
+HAVING COUNT(*) > 1
+
+-- Name NULL check
+SELECT COUNT(*) FROM silver.payers WHERE name IS NULL
+
+-- Negative financial values
+SELECT COUNT(*) FROM silver.payers
+WHERE amount_covered < 0
+OR amount_uncovered < 0
+OR revenue < 0
+
+-- Negative count columns
+SELECT COUNT(*) FROM silver.payers
+WHERE covered_encounters < 0
+OR uncovered_encounters < 0
+OR covered_medications < 0
+OR uncovered_medications < 0
+OR covered_procedures < 0
+OR uncovered_procedures < 0
+OR covered_immunizations < 0
+OR uncovered_immunizations < 0
+
+-- QOLS avg range check [0,1] - as stated before
+-- Note: capped in Silver layer, should return 0 rows
+SELECT COUNT(*) FROM silver.payers
+WHERE qols_avg < 0 OR qols_avg > 1
+
+-- State domain validation
+SELECT DISTINCT state_headquartered
+FROM silver.payers
+ORDER BY state_headquartered
 
 -- ========================
 -- silver.procedures

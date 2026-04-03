@@ -338,6 +338,38 @@ WHERE base_cost < 0 or payer_coverage<0 or dispenses<0 or totalcost<0
 -- silver.organizations
 -- ========================
 
+-- Row count check
+SELECT COUNT(*) counted_silver_rows FROM silver.organizations
+SELECT COUNT(*) counted_bronze_rows FROM bronze.organizations
+
+-- Check if keys are not NULL
+SELECT * 
+FROM silver.organizations
+WHERE id IS NULL
+
+-- Check if there are unexpected duplicates
+SELECT id,COUNT(*)
+FROM silver.organizations
+GROUP BY id
+HAVING COUNT(*)>1
+
+-- Negative value check
+SELECT COUNT(*) FROM silver.organizations
+WHERE revenue < 0 OR utilization < 0
+
+-- State data check
+SELECT DISTINCT state 
+FROM silver.organizations
+ORDER BY state
+
+-- Important columns check
+SELECT COUNT(*) FROM silver.organizations
+WHERE name IS NULL OR city IS NULL OR state IS NULL
+
+-- Check for double spaces in name
+SELECT id, REPLACE(TRIM(name), '  ', ' ') 
+FROM silver.organizations
+WHERE REPLACE(TRIM(name), '  ', ' ') LIKE '%  %'
 
 -- ========================
 -- silver.patients

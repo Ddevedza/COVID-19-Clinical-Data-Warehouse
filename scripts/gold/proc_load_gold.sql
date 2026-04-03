@@ -1,3 +1,28 @@
+/*
+=====================================================================
+Stored Procedure: Load Gold Layer (Silver -> Gold)
+=====================================================================
+
+Creating batch loading for gold data. This procedure truncates and
+reloads all gold tables from silver, applying:
+
+    - Dimensional modeling (star schema)
+    - Surrogate key generation (IDENTITY)
+    - Derived columns (age, is_deceased, is_active, full_name)
+    - Business logic standardization (gender, marital status)
+    - Denormalization (provider + organization attributes combined)
+    - Date dimension generation (1900-01-01 to 2100-12-31)
+
+Load order:
+    1. Dimensions (dim_date, dim_patient, dim_organization,
+                   dim_provider, dim_payer)
+    2. Fact tables (fact_encounter, fact_condition,
+                    fact_observation, fact_medication, fact_procedure)
+
+=====================================================================
+*/
+
+
 CREATE OR ALTER PROCEDURE gold.load_gold
 AS
 BEGIN

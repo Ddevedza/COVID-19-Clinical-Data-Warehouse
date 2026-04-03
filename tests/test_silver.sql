@@ -338,6 +338,7 @@ WHERE base_cost < 0 or payer_coverage<0 or dispenses<0 or totalcost<0
 -- silver.organizations
 -- ========================
 
+
 -- ========================
 -- silver.patients
 -- ========================

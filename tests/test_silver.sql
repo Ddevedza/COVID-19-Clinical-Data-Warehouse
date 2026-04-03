@@ -204,6 +204,44 @@ WHERE stop < start
 -- silver.imaging_studies
 -- ========================
 
+-- Checking if silver row count matches bronze
+SELECT COUNT(*) counted_silver_rows FROM silver.imaging_studies
+SELECT COUNT(*) counted_bronze_rows FROM bronze.imaging_studies
+
+-- Check if keys are not NULL
+SELECT * 
+FROM silver.imaging_studies
+WHERE id IS NULL or patient_id IS NULL or encounter_id IS NULL
+
+-- Check if there are unexpected duplicates
+SELECT id,COUNT(*)
+FROM silver.imaging_studies
+GROUP BY id
+HAVING COUNT(*)>1
+
+-- Failed date conversions
+SELECT COUNT(*) start_NULL_check FROM silver.imaging_studies WHERE date IS NULL
+
+-- Compare non-null dates between bronze and silver
+SELECT COUNT(*) counted_bronze_start FROM bronze.imaging_studies WHERE date IS NOT NULL
+SELECT COUNT(*) counted_silver_start FROM silver.imaging_studies WHERE date IS NOT NULL
+
+-- Patients exist in silver
+SELECT COUNT(*) FROM silver.imaging_studies i
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.patients p WHERE p.id = i.patient_id
+)
+
+-- encounters exist in silver
+SELECT COUNT(*) FROM silver.imaging_studies i
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.encounters e WHERE e.id = i.encounter_id
+)
+
+-- Distinct modality codes (domain validation)
+SELECT DISTINCT modality_code FROM silver.imaging_studies
+ORDER BY modality_code
+
 -- ========================
 -- silver.immunizations
 -- ========================
@@ -227,7 +265,6 @@ WHERE stop < start
 -- ========================
 -- silver.payer_transitions
 -- ========================
-
 
 -- ========================
 -- silver.payers

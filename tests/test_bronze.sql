@@ -465,10 +465,6 @@ FROM bronze.organizations
 ORDER BY state
 
 -- ========================
--- bronze.organizations
--- ========================
-
--- ========================
 -- bronze.patients
 -- ========================
 -- PK NULL check

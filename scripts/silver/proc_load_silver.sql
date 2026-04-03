@@ -328,10 +328,10 @@ BEGIN
                 totalcost,
                 TRIM(reasoncode) AS reasoncode,
                 reasondescription,
-                -- Deduplication: where duplicate prescriptions exist for same patient/encounter/code/start,
+                -- Deduplication: where duplicate prescriptions exist for same sstop/base_cost/patient/encounter/code/start,
                 -- keep the record with the latest stop date
                 ROW_NUMBER() OVER (
-                    PARTITION BY patient, encounter, code, start
+                    PARTITION BY stop,base_cost,patient, encounter, code, start
                     ORDER BY TRY_CAST(stop AS DATE) DESC
                 ) AS rn
             FROM bronze.medications

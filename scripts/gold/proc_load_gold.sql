@@ -370,3 +370,33 @@ LEFT JOIN gold.dim_patient p ON p.patient_id = m.patient_id
 LEFT JOIN gold.dim_payer py ON py.payer_id = m.payer_id
 LEFT JOIN gold.fact_encounter fe ON fe.encounter_id = m.encounter_id
 LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(m.start, 'yyyyMMdd') AS INT)
+
+TRUNCATE TABLE gold.fact_procedure
+
+GO
+
+INSERT INTO gold.fact_procedure (
+    patient_key,
+    encounter_key,
+    date_key,
+    procedure_date,
+    code,
+    procedure_description,
+    base_cost,
+    reason_code,
+    reason_description
+)
+SELECT
+    pa.patient_key,
+    fe.encounter_key,
+    d.date_key,
+    pr.date AS procedure_date,
+    pr.code,
+    pr.description AS procedure_description,
+    pr.base_cost,
+    pr.reasoncode AS reason_code,
+    pr.reasondescription AS reason_description
+FROM silver.procedures pr
+LEFT JOIN gold.dim_patient pa ON pa.patient_id = pr.patient_id
+LEFT JOIN gold.fact_encounter fe ON fe.encounter_id = pr.encounter_id
+LEFT JOIN gold.dim_date d ON d.date_key = CAST(FORMAT(pr.date, 'yyyyMMdd') AS INT);

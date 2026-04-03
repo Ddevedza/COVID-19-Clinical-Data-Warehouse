@@ -286,6 +286,49 @@ WHERE base_cost < 0
 -- ========================
 -- silver.medications
 -- ========================
+-- Checking if silver row count matches bronze
+SELECT COUNT(*) counted_silver_rows FROM silver.medications
+SELECT COUNT(*) counted_bronze_rows FROM bronze.medications
+
+-- Check if keys are not NULL
+SELECT * 
+FROM silver.medications
+WHERE payer_id IS NULL or code IS NULL or patient_id IS NULL or encounter_id IS NULL
+
+-- Check if there are unexpected duplicates
+SELECT stop, base_cost,payer_id,code,patient_id,encounter_id,COUNT(*)
+FROM silver.medications
+GROUP BY start, stop, payer_id, base_cost,code,patient_id,encounter_id
+HAVING COUNT(*)>1
+
+-- Failed date conversions
+SELECT COUNT(*) start_NULL_check FROM silver.medications WHERE start IS NULL
+
+-- Compare non-null dates between bronze and silver
+SELECT COUNT(*) counted_bronze_start FROM bronze.medications WHERE start IS NOT NULL
+SELECT COUNT(*) counted_silver_start FROM silver.medications WHERE start IS NOT NULL
+
+-- Patients exist in silver
+SELECT COUNT(*) FROM silver.medications m
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.patients p WHERE p.id = m.patient_id
+)
+
+-- encounters exist in silver
+SELECT COUNT(*) FROM silver.medications m
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.encounters e WHERE e.id = m.encounter_id
+)
+
+-- payer exist in silver
+SELECT COUNT(*) FROM silver.medications m
+WHERE NOT EXISTS (
+    SELECT 1 FROM silver.payers p WHERE p.id = m.payer_id
+)
+
+-- Negative cost check
+SELECT COUNT(*) FROM silver.medications
+WHERE base_cost < 0 or payer_coverage<0 or dispenses<0 or totalcost<0
 
 -- ========================
 -- silver.observations

@@ -240,4 +240,4 @@ clinical-data-warehouse/
 Master's student in Information Technology (ML Engineering & Data Science focus)
 Aspiring Data Engineer
 
-[GitHub](https://github.com/Ddevedza) · [LinkedIn](https://linkedin.com/in/YOUR_LINKEDIN_HERE)
+[GitHub](https://github.com/Ddevedza) · [LinkedIn](https://linkedin.com/in/dusan-devedzic-3812031b2)

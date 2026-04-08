@@ -20,29 +20,35 @@ The data architecture follows the **Medallion Architecture** with **Bronze**, **
 | 🥈 Silver | Clean, standardize, validate and integrate | Tables | Full Refresh | Cleansed operational model |
 | 🥇 Gold | Provide business-ready analytical data | Fact tables, Dimension tables, Views | Full Refresh | Star schema |
 
+![Layer Comparison](docs/images/layer_comparison.png)
+
 ---
 
 ## 📊 Key Findings
 
 The following insights were derived from the analytical queries built on top of the Gold layer:
 
-- **Most prevalent condition:** Viral sinusitis dominates total diagnosis counts across all months with no seasonal pattern, suggesting it is endemic in this patient population year-round
-- **Chronic conditions:** Obesity, prediabetes and hypertension show fewer total diagnoses but significantly higher active case rates, reflecting their persistent nature
-- **Highest mortality rate:** Chronic congestive heart failure leads with an ~89.47% mortality rate among patients with that diagnosis, followed by suspected lung cancer (~86.66%)
-- **Most visited organization:** VA Boston Healthcare System Jamaica Plain Campus with **[X] visits** generating **$[X] in total revenue** — *[fill in when home]*
-- **Busiest provider:** Gaynell Streich with **3,983 encounters**, averaging **108 visits per unique patient** — indicating a small cohort of high-utilizer chronic patients
-- **Monthly activity:** Encounter counts peak in summer months (May–July) and dip in February — *[confirm when home]*
-- **Payer coverage:** *[Add insight from payer cost query when home]*
+**Condition Prevalence**
+- Viral sinusitis is the most diagnosed condition with **1,248 total diagnoses across 743 unique patients**, however 1,242 cases are resolved — confirming it as an acute, recurring condition
+- Chronic conditions like **Obesity (449 active cases), Prediabetes (317 active cases) and Hypertension (302 active cases)** show 100% active case rates — once diagnosed, they persist indefinitely
+- When excluding viral sinusitis, **Acute viral pharyngitis and Acute bronchitis** alternate as the top monthly condition with no clear seasonal pattern, suggesting they are endemic year-round
 
----
+**Mortality by Condition**
+- **Chronic congestive heart failure** has the highest mortality rate at **89.47%** (51 out of 57 patients deceased)
+- Followed by **Suspected lung cancer (86.67%)** and **Myocardial infarction (85.71%)**
+- Conditions with fewer than 10 patients were excluded to avoid statistically unreliable rates
 
-## 🗺️ Silver Layer — Entity Relationship Diagram
+**Encounter Activity**
+- Monthly encounter counts **peak in July (4,676 encounters)** and **dip in February (3,808 encounters)**
+- Encounter volume is relatively consistent throughout the year suggesting stable clinical demand
 
-The Silver layer ERD shows all 16 tables with their key relationships. Encounters is the central hub table — nearly all clinical event tables link to it via foreign keys.
+**Organization Activity**
+- **VA Boston Healthcare System Jamaica Plain Campus** is the most visited organization with **3,217 encounters** generating **$415,456.05 in total revenue**, with **$147,533.85 paid out of pocket by patients**
+- Worcester Outpatient Clinic ranked 2nd with 1,972 encounters and $254,703.52 in revenue
 
-![Silver ERD](docs/images/silver_erd.png)
-
----
+**Provider Activity**
+- **Gaynell Streich** is the busiest provider with **3,983 encounters** across only **37 unique patients** — averaging **~108 visits per patient**, indicating a small cohort of high-utilizer chronic patients
+- When ranked by unique patients, **Vern Powlowski leads with 81 unique patients** despite ranking 3rd by encounter count — a broader but less frequent patient base
 
 ## 🔄 Data Flow
 
@@ -60,7 +66,7 @@ This project involves:
 - **ETL / ELT Pipelines:** Extracting, transforming, and loading synthetic clinical data into SQL Server
 - **Data Modeling:** Developing fact and dimension tables optimized for analytical queries
 - **Data Quality:** Testing and validating all 16 Silver tables and all Gold layer tables
-- **Analytics & Reporting:** SQL-based reporting views and analytical queries
+- **Analytics & Reporting:** SQL-based reporting views and analytical queries delivering clinical insights
 - **Documentation:** Data catalog, ERD, naming conventions, and architecture diagrams
 
 ---
@@ -70,6 +76,8 @@ This project involves:
 This project uses the **Synthea 1K Sample Synthetic Patient Records (CSV)** dataset — an open-source synthetic patient generator that produces realistic but not real healthcare records.
 
 **Source:** [https://synthea.mitre.org/downloads](https://synthea.mitre.org/downloads)
+
+> ⚠️ CSV files are not included in this repository due to size. Download directly from the source above.
 
 The dataset simulates an **Electronic Health Record (EHR)** environment across 16 CSV files:
 
@@ -121,9 +129,9 @@ Key transformations applied during the Bronze → Silver load:
 - **Deduplication** — ROW_NUMBER() applied to medications and observations to remove source duplicates
 - **String standardization** — TRIM() applied to all NVARCHAR columns, LOWER() applied to encounterclass
 - **Name cleaning** — numeric suffixes removed from patient and provider names (Synthea generation artifact) using TRANSLATE/REPLACE
-- **Date correction** — birthdates and deathdates corrected for century misinterpretation from 2-digit year format
+- **Date correction** — birthdates and deathdates validated and corrected for impossible values (future dates, birthdate > deathdate)
 - **Value capping** — qols_avg capped to [0,1] range (NO_INSURANCE payer produces values slightly above 1 in Synthea)
-- **FK column renaming** — patient → patient_id, encounter → encounter_id etc. for explicit relationship naming
+- **FK column renaming** — patient → patient_id, encounter → encounter_id for explicit relationship naming
 
 ---
 
@@ -170,9 +178,11 @@ EXEC gold.load_gold;       -- Build dimensional model in Gold
 
 Comprehensive test suites are included for all three layers:
 
-- **`tests/test_bronze.sql`** — Row count validation and source data profiling to inform Silver transformations
-- **`tests/test_silver.sql`** — NULL checks, duplicate checks, FK orphan checks, date validation, domain validation and financial checks across all 16 tables
-- **`tests/test_gold.sql`** — Surrogate key integrity, duplicate natural key checks, referential integrity, business logic flag validation and cost checks
+| File | Purpose |
+|---|---|
+| `tests/test_bronze.sql` | Row count validation and source data profiling to inform Silver transformations |
+| `tests/test_silver.sql` | NULL checks, duplicate checks, FK orphan checks, date validation, domain validation and financial checks across all 16 tables |
+| `tests/test_gold.sql` | Surrogate key integrity, duplicate natural key checks, referential integrity, business logic flag validation and cost checks |
 
 ---
 
@@ -188,6 +198,7 @@ clinical-data-warehouse/
 │   ├── data_catalog.md                 # Silver layer data catalog (all 16 tables)
 │   └── images/
 │       ├── architecture.png            # Full Medallion Architecture diagram
+│       ├── layer_comparison.png        # Layer-by-layer comparison table
 │       ├── data_flow.png               # Bronze to Silver data flow diagram
 │       └── silver_erd.png              # Silver layer ERD (keys only)
 │
@@ -199,21 +210,25 @@ clinical-data-warehouse/
 │   ├── silver/
 │   │   ├── ddl_silver.sql              # Silver table definitions
 │   │   └── proc_load_silver.sql        # Silver stored procedure
-│   ├── gold/
-│   │   ├── ddl_gold.sql                # Gold table definitions
-│   │   ├── proc_load_gold.sql          # Gold stored procedure
-│   │   ├── views/                      # Reporting views
-│   │   └── analytical_queries/         # Analytical SQL queries with insights
-│   │       ├── 01_top_conditions_by_diagnosis.sql
-│   │       ├── 02_monthly_encounters_top_condition.sql
-│   │       ├── 03_mortality_by_condition.sql
-│   │       ├── 04_most_visited_organizations.sql
-│   │       └── 05_provider_activity.sql
+│   └── gold/
+│       ├── ddl_gold.sql                # Gold table definitions
+│       ├── proc_load_gold.sql          # Gold stored procedure
+│       ├── views/                      # Reporting views
+│       │   ├── vw_patient_summary.sql
+│       │   ├── vw_encounter_details.sql
+│       │   ├── vw_condition_prevalence.sql
+│       │   └── vw_monthly_encounter_activity.sql
+│       └── analytical_queries/         # Analytical SQL queries with insights
+│           ├── 01_top_conditions_by_diagnosis.sql
+│           ├── 02_monthly_encounters_top_condition.sql
+│           ├── 03_mortality_by_condition.sql
+│           ├── 04_most_visited_organizations.sql
+│           └── 05_provider_activity.sql
 │
 ├── tests/
-│   ├── test_bronze.sql                 # Bronze layer tests
-│   ├── test_silver.sql                 # Silver layer tests
-│   └── test_gold.sql                   # Gold layer tests
+│   ├── test_bronze.sql                 # Bronze layer data quality tests
+│   ├── test_silver.sql                 # Silver layer data quality tests
+│   └── test_gold.sql                   # Gold layer data quality tests
 │
 ├── README.md
 ├── LICENSE                             # MIT license
@@ -237,7 +252,7 @@ clinical-data-warehouse/
 ## 👤 Author
 
 **Dušan Devedžić**
-Master's student in Information Technology (ML Engineering & Data Science focus)
-Aspiring Data Engineer
+Master's student in Information Technology
+Aspiring Data Engineer | Interest in AI/ML Engineering
 
 [GitHub](https://github.com/Ddevedza) · [LinkedIn](https://linkedin.com/in/dusan-devedzic-3812031b2)

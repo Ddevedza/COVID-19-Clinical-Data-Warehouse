@@ -466,64 +466,64 @@ BEGIN
             healthcare_coverage
         )
         SELECT
-            TRIM(id) AS id,
-            -- Source birthdate format is YY/MM/DD (format code 11)
+		    TRIM(id) AS id,
+		    -- Source birthdate format is YY/MM/DD (format code 11)
 			-- TRY_CONVERT handles this correctly where TRY_CAST would fail or misinterpret
 			-- As we don't have more information on the actual dates and possible interpretations I subtracted 100 years in two cases:
 			--   1. Birthdate lands in the future (SQL Server misread century as 2000s)
 			--   2. Birthdate is greater than deathdate after deathdate is century-corrected first
 			CASE 
-			    WHEN TRY_CONVERT(DATE, birthdate, 11) > GETDATE()
-			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, birthdate, 11))
-			    WHEN TRY_CONVERT(DATE, birthdate, 11) > (
+			    WHEN TRY_CONVERT(DATE, birthdate, 23) > GETDATE()
+			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, birthdate, 23))
+			    WHEN TRY_CONVERT(DATE, birthdate, 23) > (
 			        CASE 
-			            WHEN TRY_CONVERT(DATE, deathdate, 11) > GETDATE()
-			            THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, deathdate, 11))
-			        ELSE TRY_CONVERT(DATE, deathdate, 11) END)
-			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, birthdate, 11))
-			    ELSE TRY_CONVERT(DATE, birthdate, 11)
+			            WHEN TRY_CONVERT(DATE, deathdate, 23) > GETDATE()
+			            THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, deathdate, 23))
+			        ELSE TRY_CONVERT(DATE, deathdate, 23) END)
+			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, birthdate, 23))
+			    ELSE TRY_CONVERT(DATE, birthdate, 23)
 			END AS birthdate,
 			CASE 
-			    WHEN TRY_CONVERT(DATE, deathdate, 11) > GETDATE()
-			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, deathdate, 11))
-			    ELSE TRY_CONVERT(DATE, deathdate, 11)
+			    WHEN TRY_CONVERT(DATE, deathdate, 23) > GETDATE()
+			        THEN DATEADD(YEAR, -100, TRY_CONVERT(DATE, deathdate, 23))
+			    ELSE TRY_CONVERT(DATE, deathdate, 23)
 			END AS deathdate,
-            TRIM(ssn) AS ssn,
-            TRIM(drivers) AS drivers,
-            TRIM(passport) AS passport,
-            TRIM(prefix) AS prefix,
-            -- Remove trailing numbers from first, last  and maiden name
-            REPLACE( 
-                TRANSLATE(first, '0123456789', '##########'), -- Translating number values in a string with a #
-                '#',
-                '' -- so we can replace it into empty string - ''
-            ) AS first,
-            REPLACE( 
-                TRANSLATE(last, '0123456789', '##########'), -- Translating number values in a string with a #
-                '#',
-                '' -- so we can replace it into empty string - ''
-            ) AS last,
-            TRIM(suffix) AS suffix,
-            REPLACE( 
-                TRANSLATE(maiden, '0123456789', '##########'), -- Translating number values in a string with a #
-                '#',
-                '' -- so we can replace it into empty string - ''
-            ) AS maiden,
-            TRIM(marital) AS marital,
-            TRIM(race) AS race,
-            TRIM(ethnicity),
-            TRIM(gender) AS gender,
-            birthplace,
-            address,
-            city,
-            state,
-            county,
-            TRIM(zip) AS zip,
-            lat,
-            lon,
-            healthcare_expenses,
-            healthcare_coverage
-        FROM bronze.patients;
+		    TRIM(ssn) AS ssn,
+		    TRIM(drivers) AS drivers,
+		    TRIM(passport) AS passport,
+		    TRIM(prefix) AS prefix,
+		    -- Remove trailing numbers from first, last  and maiden name
+		    REPLACE( 
+		        TRANSLATE(first, '0123456789', '##########'), -- Translating number values in a string with a #
+		        '#',
+		        '' -- so we can replace it into empty string - ''
+		    ) AS first,
+		    REPLACE( 
+		        TRANSLATE(last, '0123456789', '##########'), -- Translating number values in a string with a #
+		        '#',
+		        '' -- so we can replace it into empty string - ''
+		    ) AS last,
+		    TRIM(suffix) AS suffix,
+		    REPLACE( 
+		        TRANSLATE(maiden, '0123456789', '##########'), -- Translating number values in a string with a #
+		        '#',
+		        '' -- so we can replace it into empty string - ''
+		    ) AS maiden,
+		    TRIM(marital) AS marital,
+		    TRIM(race) AS race,
+		    TRIM(ethnicity),
+		    TRIM(gender) AS gender,
+		    birthplace,
+		    address,
+		    city,
+		    state,
+		    county,
+		    TRIM(zip) AS zip,
+		    lat,
+		    lon,
+		    healthcare_expenses,
+		    healthcare_coverage
+		FROM bronze.patients;
         SET @end_time = GETDATE();
         PRINT '>> End Time: ' + CONVERT(NVARCHAR(19), @end_time, 120);
         PRINT '>> Load Duration: ' + CAST(DATEDIFF(SECOND, @start_time, @end_time) AS NVARCHAR) + ' seconds';
